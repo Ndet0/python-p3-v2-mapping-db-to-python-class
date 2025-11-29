@@ -72,3 +72,36 @@ class Department:
 
         CURSOR.execute(sql, (self.id,))
         CONN.commit()
+
+        # Set id to None to indicate the instance is no longer in the database
+        self.id = None
+
+    @classmethod
+    def instance_from_db(cls, row):
+        """Return a Department instance from a database row."""
+        return cls(row[1], row[2], row[0])  # name, location, id
+
+    @classmethod
+    def get_all(cls):
+        """Return a list of Department instances for every row in the database."""
+        sql = "SELECT * FROM departments"
+        rows = CURSOR.execute(sql).fetchall()
+        return [cls.instance_from_db(row) for row in rows]
+
+    @classmethod
+    def find_by_id(cls, id):
+        """Return a Department instance corresponding to the database row retrieved by id."""
+        sql = "SELECT * FROM departments WHERE id = ?"
+        row = CURSOR.execute(sql, (id,)).fetchone()
+        if row:
+            return cls.instance_from_db(row)
+        return None
+
+    @classmethod
+    def find_by_name(cls, name):
+        """Return a Department instance corresponding to the database row retrieved by name."""
+        sql = "SELECT * FROM departments WHERE name = ?"
+        row = CURSOR.execute(sql, (name,)).fetchone()
+        if row:
+            return cls.instance_from_db(row)
+        return None
